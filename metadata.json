@@ -1,0 +1,14 @@
+{
+  "name": "swh-uwsgi",
+  "version": "0.1.0",
+  "author": "swh",
+  "summary": "Manage uWSGI configurations",
+  "license": "Apache 2.0",
+  "source": "https://forge.softwareheritage.org/diffusion/SPUWSGI/",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ]
+}
+

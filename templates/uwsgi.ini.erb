@@ -1,0 +1,6 @@
+# UWSGI configuration for <%= @name %>
+# Managed by puppet - changes will be overwritten
+[uwsgi]
+<% @settings.each do |key, value| -%>
+<%= @key.sub('_', '-') %> = <%= @value %>
+<% end -%>
