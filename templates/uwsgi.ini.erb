@@ -2,5 +2,5 @@
 # Managed by puppet - changes will be overwritten
 [uwsgi]
 <% @settings.each do |key, value| -%>
-<%= @key.sub('_', '-') %> = <%= @value %>
+<%= key.gsub('_', '-') %> = <%= value %>
 <% end -%>
