@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# This systemd generator creates dependency symlinks that make all uWSGI apps
+# in /etc/uwsgi/apps-enabled/ be started/stopped/reloaded when uwsgi.service is
+# started/stopped/reloaded.
+
+set -eu
+
+gendir="$1"
+wantdir="$1/uwsgi.service.wants"
+uwsgiservice="/etc/systemd/system/uwsgi@.service"
+
+mkdir -p "$wantdir"
+
+for conf in /etc/uwsgi/apps-enabled/*.ini; do
+	test -e "$conf" || continue
+	base=$(basename $conf)
+	appname=$(basename $base .ini)
+	ln -s "$uwsgiservice" "$wantdir/uwsgi@$appname.service"
+done
+
+exit 0
+

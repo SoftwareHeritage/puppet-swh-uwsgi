@@ -1,0 +1,18 @@
+[Unit]
+Description=uWSGI app %i
+ConditionPathExists=/etc/uwsgi/apps-enabled/%i.ini
+PartOf=uwsgi.service
+ReloadPropagatedFrom=uwsgi.service
+Before=uwsgi.service
+
+[Service]
+Environment=UWSGI_DEB_CONFNAMESPACE=app
+Environment=UWSGI_DEB_CONFNAME=%i
+ExecStartPre=/bin/mkdir -p /run/uwsgi/app/%i
+ExecStartPre=/bin/chmod 777 /run/uwsgi/app/%i
+ExecStart=/usr/bin/uwsgi --ini /usr/share/uwsgi/conf/default.ini --ini /etc/uwsgi/apps-enabled/%i.ini --logto /var/log/uwsgi/app/%i.log
+ExecStop=/bin/kill -INT $MAINPID
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

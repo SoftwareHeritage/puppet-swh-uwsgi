@@ -18,8 +18,11 @@ class uwsgi {
   $uwsgi_packages = ['uwsgi', 'uwsgi-plugin-python3']
 
   $systemd_service_dir = '/etc/systemd/system/uwsgi.service.d'
-  $systemd_service_file = "${systemd_service_dir}/setrlimit.conf"
+  $systemd_service_snippet = "${systemd_service_dir}/setrlimit.conf"
   $uwsgi_filelimit = 65536
+
+  $systemd_service_files = ['uwsgi.service', 'uwsgi@.service']
+  $systemd_generator = '/lib/systemd/system-generators/uwsgi-generator'
 
   include ::systemd
 
@@ -32,9 +35,29 @@ class uwsgi {
     enable  => true,
     require => [
       Package[$uwsgi_packages],
-      File[$systemd_service_file],
+      File[$systemd_service_snippet],
       Exec['systemd-daemon-reload'],
     ]
+  }
+
+  each($systemd_service_files) |$file| {
+    file {"/etc/systemd/system/${file}":
+      ensure => file,
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0644',
+      source => "puppet:///modules/uwsgi/${file}",
+      notify => Exec['systemd-daemon-reload'],
+    }
+  }
+
+  file {$systemd_generator:
+    ensure => file,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
+    source => 'puppet:///modules/uwsgi/uwsgi-generator',
+    notify => Exec['systemd-daemon-reload'],
   }
 
   file {$systemd_service_dir:
@@ -44,7 +67,7 @@ class uwsgi {
     mode   => '0755',
   }
 
-  file {$systemd_service_file:
+  file {$systemd_service_snippet:
     ensure  => file,
     owner   => 'root',
     group   => 'root',

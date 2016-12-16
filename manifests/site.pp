@@ -46,6 +46,7 @@ define uwsgi::site (
 
   $uwsgi_config = "/etc/uwsgi/apps-available/${name}.ini"
   $uwsgi_link = "/etc/uwsgi/apps-enabled/${name}.ini"
+  $uwsgi_pidfile = "/var/run/uwsgi/app/${name}/pid"
 
   case $ensure {
     default: { err("Unknown value ensure => ${ensure}.") }
@@ -73,15 +74,23 @@ define uwsgi::site (
         ensure  => link,
         target  => $uwsgi_config,
         require => File[$uwsgi_config],
-        notify  => Service['uwsgi'],
+        notify  => Exec["uwsgi reload ${name}"],
       }
-      File[$uwsgi_config] ~> Service['uwsgi']
+      File[$uwsgi_config] ~> Exec["uwsgi reload ${name}"]
     }
     'present', 'absent': {
       file {$uwsgi_link:
         ensure => absent,
-        notify  => Service['uwsgi'],
+        notify => Exec["uwsgi stop ${name}"],
       }
     }
+  }
+
+  exec {"uwsgi reload ${name}":
+    command => "/usr/bin/systemctl reload uwsgi@${name}",
+  }
+
+  exec {"uwsgi stop ${name}":
+    command => "/usr/bin/systemctl stop uwsgi@${name}",
   }
 }
