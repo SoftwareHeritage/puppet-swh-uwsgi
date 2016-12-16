@@ -95,12 +95,12 @@ define uwsgi::site (
   }
 
   exec {"uwsgi reload ${name}":
-    command     => "/usr/bin/systemctl reload uwsgi@${name}",
+    command     => "/bin/systemctl reload uwsgi@${name}",
     refreshonly => true,
   }
 
   exec {"uwsgi stop ${name}":
-    command     => "/usr/bin/systemctl stop uwsgi@${name}",
+    command     => "/bin/systemctl stop uwsgi@${name}",
     refreshonly => true,
   }
 }
