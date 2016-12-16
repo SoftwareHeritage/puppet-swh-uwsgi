@@ -74,23 +74,33 @@ define uwsgi::site (
         ensure  => link,
         target  => $uwsgi_config,
         require => File[$uwsgi_config],
-        notify  => Exec["uwsgi reload ${name}"],
       }
+
       File[$uwsgi_config] ~> Exec["uwsgi reload ${name}"]
+
+      service {"uwsgi@${name}":
+        ensure => running,
+        enable => true,
+      }
     }
     'present', 'absent': {
       file {$uwsgi_link:
         ensure => absent,
         notify => Exec["uwsgi stop ${name}"],
       }
+      service {"uwsgi@${name}":
+        enable => false,
+      }
     }
   }
 
   exec {"uwsgi reload ${name}":
-    command => "/usr/bin/systemctl reload uwsgi@${name}",
+    command     => "/usr/bin/systemctl reload uwsgi@${name}",
+    refreshonly => true,
   }
 
   exec {"uwsgi stop ${name}":
-    command => "/usr/bin/systemctl stop uwsgi@${name}",
+    command     => "/usr/bin/systemctl stop uwsgi@${name}",
+    refreshonly => true,
   }
 }
